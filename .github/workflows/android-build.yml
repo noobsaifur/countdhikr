@@ -2,115 +2,117 @@ name: Build Android APK
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
-  workflow_dispatch:  # Manual trigger
-
-env:
-  JAVA_VERSION: '17'
-  NODE_VERSION: '24'
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
+    env:
+      JAVA_VERSION: 17
+      NODE_VERSION: 24
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ env.JAVA_VERSION }}
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          accept-android-sdk-licenses: false
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v4
+      with:
+        accept-android-sdk-licenses: false
+        cmdline-tools-version: 14742923
+        packages: 'tools platform-tools build-tools;36.0.0 platforms;android-36'
 
-      - name: Accept Android SDK licenses and install SDK 36
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+    - name: Install npm dependencies
+      run: npm install --legacy-peer-deps
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+    - name: Build web assets
+      run: npm run build
 
-      - name: Build web app
-        run: npm run build
+    # CRITICAL: Clean up stale Android platform to prevent conflicts
+    - name: Remove stale Android platform
+      run: |
+        rm -rf android/
+        echo "✓ Removed stale Android platform directory"
 
-      - name: Add Android platform
-        run: npx cap add android || true
+    # Add fresh Android platform
+    - name: Add Android platform
+      run: |
+        npx cap add android
+        echo "✓ Added fresh Android platform"
 
-      - name: Sync Capacitor
-        run: npx cap sync android
+    - name: Sync Capacitor
+      run: npx cap sync android
 
-      - name: Configure Gradle encoding
-        run: |
-          echo "org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8" >> android/gradle.properties
-          echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
+    # Configure Gradle with proper memory and Java settings
+    - name: Configure Gradle properties
+      working-directory: android
+      run: |
+        echo "org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8" >> gradle.properties
+        echo "org.gradle.java.home=$JAVA_HOME" >> gradle.properties
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
+        cat gradle.properties
 
-      - name: Fix Java 17 compatibility
-        run: |
-          # Update build.gradle for Java 17
-          sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' android/app/build.gradle || true
-          sed -i 's/jvmTarget = "11"/jvmTarget = "17"/g' android/app/build.gradle || true
+    # Update build.gradle for Java 17 compatibility
+    - name: Update build.gradle for Java 17
+      working-directory: android
+      run: |
+        sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' app/build.gradle || true
+        sed -i 's/jvmTarget = "11"/jvmTarget = "17"/g' app/build.gradle || true
+        echo "✓ Updated Java version to 17 in build.gradle"
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x android/gradlew
+    # Make gradlew executable
+    - name: Make gradlew executable
+      working-directory: android
+      run: chmod +x gradlew
 
-      - name: Build Debug APK
-        working-directory: android
-        env:
-          JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+    # Clean Gradle cache to remove corrupted artifacts
+    - name: Clean Gradle cache
+      working-directory: android
+      env:
+        JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
+      run: |
+        ./gradlew clean
+        echo "✓ Cleaned Gradle cache"
 
-      - name: Build Release APK
-        working-directory: android
-        env:
-          JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+    # Build Debug APK with detailed logging
+    - name: Build Debug APK
+      working-directory: android
+      env:
+        JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
+      run: |
+        ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+    # Upload APK artifact
+    - name: Upload APK artifact
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: android/app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 7
 
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
-
-  # Optional: Deploy to Firebase App Distribution
-  firebase-deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: release-apk
-          path: ./apk
-
-      - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
-          groups: testers
-          file: ./apk/app-release-unsigned.apk
+    # Upload build reports on failure
+    - name: Upload build reports on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-reports
+        path: android/build/reports/
+        retention-days: 7
