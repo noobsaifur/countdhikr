@@ -46,6 +46,7 @@ interface LocationCache {
   lng: number;
   location: string;
   timestamp: number;
+  isAuto: boolean;
 }
 
 export function usePrayerTimes(azanSettings?: AzanSettings) {
@@ -97,6 +98,7 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
   const isLocationLocked = useCallback((): boolean => {
     const cached = getCachedLocation();
     if (!cached) return false;
+    if (cached.isAuto === false) return false; // Manual city selection is not an auto location lock!
     const now = Date.now();
     return now - cached.timestamp < LOCATION_LOCK_DURATION;
   }, [getCachedLocation]);
@@ -168,6 +170,7 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
           lng: longitude,
           location: finalLocationName,
           timestamp: Date.now(),
+          isAuto: useAutoLocation,
         };
         localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(cache));
 
@@ -179,11 +182,13 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
           location: finalLocationName,
           date: data.data.date.readable,
           hijriDate: `${hijri.day} ${hijri.month.en} ${hijri.year} AH`,
-          isLocationLocked: true,
+          isLocationLocked: useAutoLocation, // Only lock for auto location
           lastFetchTime: Date.now(),
         }));
 
-        coordsRef.current = { lat: latitude, lng: longitude };
+        if (useAutoLocation) {
+          coordsRef.current = { lat: latitude, lng: longitude };
+        }
       } else {
         throw new Error('Invalid response from API');
       }
@@ -276,7 +281,7 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
         prayerMethod ?? (selectedCountryMethod ?? 8),
         selectedCountryName || undefined
       );
-    } else if (coordsRef.current) {
+    } else if (useAutoLocation && coordsRef.current) {
       fetchPrayerTimes(
         coordsRef.current.lat,
         coordsRef.current.lng,
@@ -290,7 +295,6 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
     selectedCountryLng,
     selectedCountryName,
     selectedCountryMethod,
-    useAutoLocation,
     fetchPrayerTimes
   ]);
 
@@ -400,6 +404,16 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
       }
     };
   }, [enabled, checkAzanTime]);
+
+  // Silence Azan immediately if disabled or sound toggled off
+  useEffect(() => {
+    if (!enabled || !sound) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  }, [enabled, sound]);
 
   return {
     ...state,

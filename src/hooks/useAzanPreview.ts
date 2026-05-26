@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { AZAN_SOUNDS } from '@/types/dhikr';
 
 export function useAzanPreview() {
@@ -60,6 +60,16 @@ export function useAzanPreview() {
       playPreview(azanUrl);
     }
   }, [isPlaying, currentUrl, playPreview, stopPreview]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
 
   return {
     isPlaying,

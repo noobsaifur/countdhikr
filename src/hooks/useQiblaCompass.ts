@@ -70,6 +70,7 @@ export function useQiblaCompass() {
 
   const watchId = useRef<number | null>(null);
   const orientationHandler = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
+  const isAbsoluteRef = useRef<boolean>(false);
 
   // Check and request device orientation permission (iOS 13+)
   const requestOrientationPermission = useCallback(async (): Promise<boolean> => {
@@ -161,20 +162,24 @@ export function useQiblaCompass() {
   // Handle device orientation for compass
   const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
     let heading: number | null = null;
+    const isAbsoluteEvent = event.type === 'deviceorientationabsolute' || event.absolute === true;
+
+    // If we have already started receiving absolute orientation events, ignore relative ones
+    if (isAbsoluteRef.current && !isAbsoluteEvent) {
+      return;
+    }
+
+    if (isAbsoluteEvent) {
+      isAbsoluteRef.current = true;
+    }
 
     // Check for iOS specific webkitCompassHeading
     if ((event as any).webkitCompassHeading !== undefined) {
       heading = (event as any).webkitCompassHeading;
     } else if (event.alpha !== null) {
-      // Android and other browsers - alpha is the compass heading
-      // Note: alpha is 0 when pointing to magnetic north, but it's relative to device orientation
-      heading = event.alpha;
-      
-      // Adjust for device orientation if needed
-      if (event.absolute === false && event.alpha !== null) {
-        // This is relative, try to use absolute if available
-        heading = 360 - event.alpha;
-      }
+      // Android / Chrome: alpha is counter-clockwise rotation around Z-axis.
+      // Compass heading is clockwise rotation from North.
+      heading = (360 - event.alpha) % 360;
     }
 
     if (heading !== null) {
