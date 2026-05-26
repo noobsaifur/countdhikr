@@ -219,8 +219,21 @@ export function QiblaCompassScreen() {
             {/* Outer ring with gradient */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-muted/30 to-muted/60 p-1">
               <div className="w-full h-full rounded-full bg-card/80 backdrop-blur-sm border border-border/40 shadow-lg">
-                {/* Compass markings */}
-                <div className="absolute inset-4 rounded-full">
+                {/* Fixed Kaaba Icon at the top (12 o'clock position) as a target */}
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                  <div className="p-2 rounded-lg bg-accent/20 backdrop-blur-sm border border-accent/30 shadow-md">
+                    <KaabaIcon className="w-8 h-8 text-foreground" />
+                  </div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent mt-1 animate-pulse" />
+                </div>
+
+                {/* Compass markings (dial) - rotates by -compassHeading */}
+                <div 
+                  className="absolute inset-4 rounded-full transition-transform duration-150 ease-out"
+                  style={{
+                    transform: `rotate(-${compassHeading || 0}deg)`,
+                  }}
+                >
                   {/* Cardinal directions */}
                   {['N', 'E', 'S', 'W'].map((dir, index) => (
                     <div
@@ -257,7 +270,7 @@ export function QiblaCompassScreen() {
                   <div className="w-4 h-4 rounded-full bg-primary shadow-lg border-2 border-primary-foreground" />
                 </div>
 
-                {/* Qibla Direction Indicator */}
+                {/* Qibla Direction Indicator - rotates by qiblaRotation */}
                 <div
                   className="absolute top-1/2 left-1/2 w-full h-full transition-transform duration-150 ease-out"
                   style={{
@@ -265,21 +278,11 @@ export function QiblaCompassScreen() {
                   }}
                 >
                   {/* Arrow pointing to Qibla */}
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
                     <NavigationArrow 
                       className="w-8 h-8 text-accent drop-shadow-lg" 
                       style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                     />
-                  </div>
-
-                  {/* Kaaba Icon at the pointer end */}
-                  <div className="absolute top-16 left-1/2 -translate-x-1/2">
-                    <div 
-                      className="p-2 rounded-lg bg-accent/20 backdrop-blur-sm border border-accent/30"
-                      style={{ transform: `rotate(-${qiblaRotation}deg)` }}
-                    >
-                      <KaabaIcon className="w-8 h-8 text-foreground" />
-                    </div>
                   </div>
 
                   {/* Direction line */}
