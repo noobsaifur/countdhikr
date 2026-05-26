@@ -298,7 +298,6 @@ const Index = () => {
             hijriDate={prayerTimesState.hijriDate}
             nextPrayer={prayerTimesState.nextPrayer}
             timeToNext={prayerTimesState.timeToNext}
-            refresh={prayerTimesState.refresh}
             forceRefresh={prayerTimesState.forceRefresh}
             isLocationLocked={prayerTimesState.isLocationLocked}
             getTimeUntilUnlock={prayerTimesState.getTimeUntilUnlock}
