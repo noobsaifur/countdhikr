@@ -1,0 +1,35 @@
+// Add these configurations to android/build.gradle (Project level)
+// After: buildscript { ... }
+
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
+}
+
+// ============================================
+// Add to android/app/build.gradle (App level)
+// Inside android { ... } block:
+
+android {
+    // ... existing config ...
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        encoding = 'UTF-8'
+    }
+    
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    
+    // Fix for encoding issues
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+}
