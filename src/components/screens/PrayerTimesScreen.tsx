@@ -161,7 +161,7 @@ export function PrayerTimesScreen({
       </div>
 
       {/* Location Card */}
-      <div className="clay-button-rect w-full p-4 mb-3">
+      <div className="clay-button-rect w-full p-4 mb-3 flex flex-col justify-start items-stretch">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-accent" />
@@ -236,7 +236,7 @@ export function PrayerTimesScreen({
       </div>
 
       {/* Calculation Method Card */}
-      <div className="clay-button-rect w-full p-4 mb-3">
+      <div className="clay-button-rect w-full p-4 mb-3 flex flex-col justify-start items-stretch">
         <button
           onClick={() => setShowMethodSelector(!showMethodSelector)}
           className="w-full flex items-center justify-between"
@@ -272,7 +272,7 @@ export function PrayerTimesScreen({
       </div>
 
       {/* Azan Sound Card */}
-      <div className="clay-button-rect w-full p-4 mb-3">
+      <div className="clay-button-rect w-full p-4 mb-3 flex flex-col justify-start items-stretch">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-accent" />
@@ -391,7 +391,7 @@ export function PrayerTimesScreen({
       </div>
 
       {/* Azan Vibrate Card */}
-      <div className="clay-button-rect w-full p-4 mb-3">
+      <div className="clay-button-rect w-full p-4 mb-3 flex flex-col justify-start items-stretch">
         <div className="flex items-center gap-2 mb-3">
           <Vibrate className="w-4 h-4 text-accent" />
           <span className="font-semibold text-foreground text-sm">Azan Vibrate</span>
@@ -409,7 +409,7 @@ export function PrayerTimesScreen({
       </div>
 
       {/* Prayer Notifications Card */}
-      <div className="clay-button-rect w-full p-4 mb-3">
+      <div className="clay-button-rect w-full p-4 mb-3 flex flex-col justify-start items-stretch">
         <div className="flex items-center gap-2 mb-3">
           <Bell className="w-4 h-4 text-accent" />
           <span className="font-semibold text-foreground text-sm">Prayer Notifications</span>
@@ -446,7 +446,7 @@ export function PrayerTimesScreen({
 
       {/* Next Prayer Highlight */}
       {nextPrayer && timeToNext && !loading && (
-        <div className="clay-button-rect w-full p-3 mb-3 bg-accent/10 border border-accent/30">
+        <div className="clay-button-rect w-full p-3 mb-3 flex flex-col justify-start items-stretch bg-accent/10 border border-accent/30">
           <p className="text-center text-sm">
             <span className="text-muted-foreground">Next: </span>
             <span className="font-bold text-accent">{nextPrayer}</span>
@@ -465,7 +465,7 @@ export function PrayerTimesScreen({
 
       {/* Error State */}
       {error && !loading && (
-        <div className="clay-button-rect w-full p-4 text-center">
+        <div className="clay-button-rect w-full p-4 flex flex-col items-center justify-center text-center">
           <p className="text-destructive text-sm">{error}</p>
           <button
             onClick={forceRefresh}

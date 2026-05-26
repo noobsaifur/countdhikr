@@ -119,7 +119,7 @@ export function QiblaCompassScreen() {
       </div>
 
       {/* Status Card */}
-      <div className="clay-button-rect w-full p-4 mb-4">
+      <div className="clay-button-rect w-full p-4 mb-4 flex flex-col justify-start items-stretch">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Compass className="w-4 h-4 text-accent" />
@@ -182,7 +182,7 @@ export function QiblaCompassScreen() {
 
       {/* Error State */}
       {error && (
-        <div className="clay-button-rect w-full p-4 mb-4 border border-destructive/30 bg-destructive/5">
+        <div className="clay-button-rect w-full p-4 mb-4 flex flex-col justify-start items-stretch border border-destructive/30 bg-destructive/5">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-destructive" />
             <span className="text-sm text-destructive">{error}</span>

@@ -59,7 +59,7 @@ export function SettingsScreen({
 
         <div className="w-[90%] max-w-md space-y-4">
           {/* Day Number Settings */}
-          <div className="clay-button-rect w-full p-4">
+          <div className="clay-button-rect w-full p-4 flex flex-col justify-start items-stretch">
             <button
               onClick={() => setShowDaySettings(!showDaySettings)}
               className="w-full flex justify-between items-center"
@@ -161,7 +161,7 @@ export function SettingsScreen({
           </div>
 
           {/* Dhikr Reminder */}
-          <div className="clay-button-rect w-full p-4">
+          <div className="clay-button-rect w-full p-4 flex flex-col justify-start items-stretch">
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-bold text-foreground">Daily Dhikr Reminder</span>
@@ -177,7 +177,7 @@ export function SettingsScreen({
           </div>
 
           {/* Salat Reminder */}
-          <div className="clay-button-rect w-full p-4">
+          <div className="clay-button-rect w-full p-4 flex flex-col justify-start items-stretch">
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-bold text-foreground">Salat Reminder</span>

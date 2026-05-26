@@ -118,7 +118,7 @@ export function ListScreen({
                   onSelectDhikr={onSelectDailyDhikr}
                 />
               ) : (
-                <div className="clay-button-rect w-full p-4 mb-3 text-center">
+                <div className="clay-button-rect w-full p-4 mb-3 flex flex-col items-center justify-center text-center">
                   <p className="text-sm text-muted-foreground">Loading today's dhikr card...</p>
                 </div>
               )}

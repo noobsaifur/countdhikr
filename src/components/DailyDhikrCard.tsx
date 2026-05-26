@@ -101,7 +101,7 @@ export function DailyDhikrCard({
   const totalTarget = dailyDhikr.dhikrs.reduce((sum, d) => sum + d.target, 0);
 
   return (
-    <div className={`clay-button-rect w-full p-4 mb-3 transition-all ${
+    <div className={`clay-button-rect w-full p-4 mb-3 transition-all flex flex-col justify-start items-stretch ${
       isToday 
         ? 'ring-2 ring-accent shadow-lg' 
         : isReadOnly 
