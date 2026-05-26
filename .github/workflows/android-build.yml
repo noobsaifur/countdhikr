@@ -74,7 +74,9 @@ jobs:
       working-directory: android
       run: |
         sed -i 's/JavaVersion.VERSION_11/JavaVersion.VERSION_17/g' app/build.gradle || true
+        sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' app/build.gradle || true
         sed -i 's/jvmTarget = "11"/jvmTarget = "17"/g' app/build.gradle || true
+        sed -i 's/jvmTarget = "21"/jvmTarget = "17"/g' app/build.gradle || true
         echo "✓ Updated Java version to 17 in build.gradle"
 
     # Make gradlew executable
