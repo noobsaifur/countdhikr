@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.countdhikr.app',
-  appName: 'countdhikr',
+  appId: 'com.countdhikr.app.beta',
+  appName: 'CountDhikr Beta',
   webDir: 'dist',
   
   // Development server for live reload

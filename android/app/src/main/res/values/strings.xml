@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">countdhikr</string>
-    <string name="title_activity_main">countdhikr</string>
-    <string name="package_name">com.countdhikr.app</string>
-    <string name="custom_url_scheme">com.countdhikr.app</string>
+    <string name="app_name">CountDhikr Beta</string>
+    <string name="title_activity_main">CountDhikr Beta</string>
+    <string name="package_name">com.countdhikr.app.beta</string>
+    <string name="custom_url_scheme">com.countdhikr.app.beta</string>
 </resources>
