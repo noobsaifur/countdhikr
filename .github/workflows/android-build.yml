@@ -109,11 +109,12 @@ jobs:
         
         # Ensure UTF-8 encoding is set for all compile tasks (prevent Gradle deprecation warnings)
         if ! grep -q "tasks.withType.*AbstractCompile" app/build.gradle; then
-            echo '
+            cat >> app/build.gradle << 'EOF'
+
 tasks.withType(org.gradle.api.tasks.compile.AbstractCompile) {
     options.encoding = "UTF-8"
 }
-' >> app/build.gradle
+EOF
             echo "✓ Added UTF-8 encoding configuration to app/build.gradle"
         fi
         
