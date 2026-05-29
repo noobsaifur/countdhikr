@@ -199,7 +199,7 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
         error: err instanceof Error ? err.message : 'Unknown error',
       }));
     }
-  }, []);
+  }, [useAutoLocation]);
 
   const getLocation = useCallback((force: boolean = false) => {
     // If using selected country, use its coordinates
@@ -249,6 +249,11 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
           error: `Automatic location failed: ${error.message}. Showing times for Mecca.`,
         }));
         fetchPrayerTimes(21.4225, 39.8262, prayerMethod ?? 4, 'Mecca (Default)');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0, // Force fresh geolocation fetch!
       }
     );
   }, [
@@ -295,6 +300,7 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
     selectedCountryLng,
     selectedCountryName,
     selectedCountryMethod,
+    useAutoLocation,
     fetchPrayerTimes
   ]);
 
@@ -410,7 +416,13 @@ export function usePrayerTimes(azanSettings?: AzanSettings) {
     if (!enabled || !sound) {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+        audioRef.current.src = '';
+        try {
+          audioRef.current.load();
+        } catch (e) {
+          // Ignore
+        }
+        audioRef.current = null;
       }
     }
   }, [enabled, sound]);

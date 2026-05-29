@@ -15,35 +15,43 @@ const navItems = [
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
-    <div className="fixed bottom-5 landscape:bottom-3 left-1/2 -translate-x-1/2 w-[90%] max-w-md h-18 landscape:h-13 flex justify-around items-center z-50 rounded-3xl landscape:rounded-2xl bg-card/65 dark:bg-card/45 backdrop-blur-2xl border border-white/25 dark:border-white/10 shadow-xl transition-all duration-300 px-2">
-      {navItems.map(({ id, icon: Icon, label }) => (
-        <button
-          key={id}
-          className={`nav-item-new relative flex flex-col items-center justify-center w-14 h-14 landscape:w-11 landscape:h-11 rounded-2xl transition-all active:scale-95 ${
-            activeTab === id
-              ? 'text-primary scale-105 font-bold'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-          onClick={() => onTabChange(id)}
-        >
-          {/* Dot indicator on top */}
-          {activeTab === id && (
-            <div className="absolute top-0 w-1.5 h-1.5 rounded-full bg-primary animate-bounce shadow-md shadow-primary/30" />
-          )}
-          <Icon
-            className={`w-[18px] h-[18px] landscape:w-4 landscape:h-4 transition-transform ${
-              activeTab === id ? 'scale-110 text-primary' : ''
-            }`}
-          />
-          <span
-            className={`text-[9px] font-bold tracking-wide mt-0.5 ${
-              activeTab === id ? 'text-primary' : 'text-muted-foreground'
-            }`}
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center safe-bottom">
+      <div className="w-full max-w-lg h-20 landscape:h-14 flex justify-around items-center
+        bg-card/65 dark:bg-card/45 backdrop-blur-3xl
+        border-t border-white/20 dark:border-white/10
+        shadow-[0_-4px_30px_rgba(0,0,0,0.06)]
+        dark:shadow-[0_-4px_30px_rgba(0,0,0,0.3)]
+        transition-all duration-300 px-2 rounded-t-[1.75rem]">
+        {navItems.map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            className="flex flex-col items-center justify-center w-16 h-16 landscape:w-14 landscape:h-12 transition-all duration-200 active:scale-95 group"
+            onClick={() => onTabChange(id)}
           >
-            {label}
-          </span>
-        </button>
-      ))}
+            {/* MD3 Active Indicator Pill container */}
+            <div className="relative w-14 h-8 landscape:w-11 landscape:h-7 flex items-center justify-center rounded-full transition-all duration-300">
+              {activeTab === id ? (
+                <div className="absolute inset-0 rounded-full m3-nav-indicator animate-screen-in" />
+              ) : (
+                <div className="absolute inset-0 rounded-full bg-transparent group-hover:bg-primary/5 transition-all duration-200" />
+              )}
+              <Icon
+                className={`relative z-10 w-[18px] h-[18px] landscape:w-4 landscape:h-4 transition-all duration-200 ${
+                  activeTab === id ? 'text-primary scale-110' : 'text-muted-foreground'
+                }`}
+              />
+            </div>
+            {/* Label text below indicator pill */}
+            <span
+              className={`text-[10px] md:text-[11px] font-semibold tracking-wide mt-1 landscape:hidden transition-colors duration-250 ${
+                activeTab === id ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              {label}
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

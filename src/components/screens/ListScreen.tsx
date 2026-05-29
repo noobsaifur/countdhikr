@@ -72,20 +72,21 @@ export function ListScreen({
   const isUsingDailyMode = activeDailyDhikrId !== null;
 
   return (
-    <div className="animate-screen-in flex flex-col h-full overflow-y-auto hide-scroll pb-32">
-      <div className="w-[90%] max-w-md mx-auto">
+    <div className="animate-screen-in flex flex-col h-full overflow-y-auto hide-scroll pb-8 landscape:pb-4">
+      <div className="w-[92%] max-w-md md:max-w-2xl mx-auto space-y-6">
+        
         {/* Daily Dhikr Section - Collapsible */}
-        <div className="mb-6">
+        <div className="liquid-glass p-3 md:p-5">
           {/* Section Header */}
           <button
             onClick={() => setIsDailyDhikrExpanded(!isDailyDhikrExpanded)}
-            className="w-full flex items-center justify-between py-3 mb-2"
+            className="w-full flex items-center justify-between py-2"
           >
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-accent" />
-              <h2 className="font-bold text-foreground text-xl">Daily Dhikr</h2>
+              <h2 className="font-bold text-foreground text-lg md:text-xl">Daily Dhikr</h2>
               {isUsingDailyMode && (
-                <span className="text-[10px] bg-green-500/20 text-green-600 px-2 py-0.5 rounded-full font-medium">
+                <span className="text-[10px] bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded-full font-bold">
                   Active
                 </span>
               )}
@@ -103,7 +104,7 @@ export function ListScreen({
           </button>
 
           {isDailyDhikrExpanded && (
-            <>
+            <div className="mt-4 space-y-4">
               {/* Today's Card - Always Expanded */}
               {todayCard ? (
                 <DailyDhikrCard
@@ -118,141 +119,151 @@ export function ListScreen({
                   onSelectDhikr={onSelectDailyDhikr}
                 />
               ) : (
-                <div className="clay-button-rect w-full p-4 mb-3 flex flex-col items-center justify-center text-center">
+                <div className="liquid-glass w-full p-4 flex flex-col items-center justify-center text-center">
                   <p className="text-sm text-muted-foreground">Loading today's dhikr card...</p>
                 </div>
               )}
 
               {/* History Section */}
               {historyCards.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-muted-foreground">History</span>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">History</span>
                     {historyCards.length > 3 && (
                       <button
                         onClick={() => setShowAllHistory(!showAllHistory)}
-                        className="text-xs text-accent hover:underline"
+                        className="text-xs text-accent font-bold hover:underline"
                       >
                         {showAllHistory ? 'Show Less' : `View All (${historyCards.length})`}
                       </button>
                     )}
                   </div>
                   
-                  {visibleHistory.map((dailyDhikr) => (
-                    <DailyDhikrCard
-                      key={dailyDhikr.id}
-                      dailyDhikr={dailyDhikr}
-                      isToday={false}
-                      activeDailyDhikrId={null}
-                      onAddDhikr={onAddDhikrToDay}
-                      onDeleteDhikr={onDeleteDhikrFromDay}
-                      onIncrementDhikr={onIncrementDayDhikr}
-                      onResetDhikr={onResetDayDhikr}
-                    />
-                  ))}
+                  <div className="space-y-4">
+                    {visibleHistory.map((dailyDhikr) => (
+                      <DailyDhikrCard
+                        key={dailyDhikr.id}
+                        dailyDhikr={dailyDhikr}
+                        isToday={false}
+                        activeDailyDhikrId={null}
+                        onAddDhikr={onAddDhikrToDay}
+                        onDeleteDhikr={onDeleteDhikrFromDay}
+                        onIncrementDhikr={onIncrementDayDhikr}
+                        onResetDhikr={onResetDayDhikr}
+                        onSelectDhikr={onSelectDailyDhikr}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
-        <h2 className="text-center font-bold text-foreground text-xl mb-4">Saved Dhikr</h2>
+        {/* Saved Dhikr Section */}
+        <div>
+          <h2 className="text-center font-bold text-foreground text-xl mb-4 uppercase tracking-widest header-font text-accent">Saved Dhikr</h2>
 
-        {/* General Counter Option */}
-        <div
-          onClick={() => handleSelectDhikr('')}
-          className={`clay-button-rect w-full p-4 flex justify-between items-center cursor-pointer mb-3 ${
-            activeDhikrId === null && !isUsingDailyMode ? 'ring-2 ring-accent' : ''
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground font-bold text-sm">
-              ∞
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="font-bold text-foreground">General Counter</span>
-              <span className="text-xs text-muted-foreground">Target: 100</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Dhikr List */}
-        <div className="space-y-3 mb-6">
-          {dhikrs.map((dhikr) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 space-y-3 md:space-y-0 mb-4">
+            {/* General Counter Option */}
             <div
-              key={dhikr.id}
-              onClick={() => handleSelectDhikr(dhikr.id)}
-              className={`clay-button-rect w-full p-4 flex justify-between items-center cursor-pointer ${
-                activeDhikrId === dhikr.id && !isUsingDailyMode ? 'ring-2 ring-accent' : ''
+              onClick={() => handleSelectDhikr('')}
+              className={`liquid-glass w-full p-4 flex justify-between items-center cursor-pointer hover:scale-[1.01] active:scale-95 transition-all ${
+                activeDhikrId === null && !isUsingDailyMode ? 'ring-2 ring-accent bg-accent/5' : ''
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground font-bold text-sm">
-                  {dhikr.count}
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground font-bold text-lg">
+                  ∞
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="font-bold text-foreground">{dhikr.title}</span>
-                  <span className="text-xs text-muted-foreground">Target: {dhikr.target}</span>
+                  <span className="font-bold text-foreground">General Counter</span>
+                  <span className="text-xs text-muted-foreground">Target: 100</span>
                 </div>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteDhikr(dhikr.id);
-                }}
-                className="text-destructive/60 hover:text-destructive p-2 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
             </div>
-          ))}
-        </div>
 
-        {/* Add Dhikr Button */}
-        <div
-          onClick={onOpenAddDhikr}
-          className="clay-card p-3 mb-8 flex flex-col items-center text-center cursor-pointer hover:bg-card/60 transition-colors"
-        >
-          <div className="font-bold text-foreground">Add Your Dhikr</div>
-          <div className="text-xs text-muted-foreground mb-2">Create custom dhikr</div>
-          <div className="clay-button w-8 h-8 rounded-full">
-            <Plus className="w-4 h-4" />
-          </div>
-        </div>
-
-        <h2 className="text-center font-bold text-foreground text-xl mb-4">Must Recite Dua</h2>
-
-        {/* Dua List */}
-        <div className="space-y-3 mb-6">
-          {duas.map((dua) => (
-            <div key={dua.id} className="clay-button-rect w-full p-4 flex flex-col gap-2 relative group">
-              {dua.arabic && (
-                <div className="text-right font-arabic text-lg text-foreground leading-loose">
-                  {dua.arabic}
+            {/* Dhikr List */}
+            {dhikrs.map((dhikr) => (
+              <div
+                key={dhikr.id}
+                onClick={() => handleSelectDhikr(dhikr.id)}
+                className={`liquid-glass w-full p-4 flex justify-between items-center cursor-pointer hover:scale-[1.01] active:scale-95 transition-all ${
+                  activeDhikrId === dhikr.id && !isUsingDailyMode ? 'ring-2 ring-accent bg-accent/5' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground font-bold text-sm">
+                    {dhikr.count}
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="font-bold text-foreground">{dhikr.title}</span>
+                    <span className="text-xs text-muted-foreground">Target: {dhikr.target}</span>
+                  </div>
                 </div>
-              )}
-              <div className="text-sm text-muted-foreground italic">{dua.desc}</div>
-              <button
-                onClick={() => onDeleteDua(dua.id)}
-                className="absolute top-2 left-2 text-destructive/60 hover:text-destructive opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteDhikr(dhikr.id);
+                  }}
+                  className="text-destructive/60 hover:text-destructive p-2 rounded-lg hover:bg-destructive/5 transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
 
-        {/* Add Dua Button */}
-        <div
-          onClick={onOpenAddDua}
-          className="clay-card p-3 mb-4 flex flex-col items-center text-center cursor-pointer hover:bg-card/60 transition-colors"
-        >
-          <div className="font-bold text-foreground">Add Your Dua</div>
-          <div className="text-xs text-muted-foreground mb-2">Save favorite supplications</div>
-          <div className="clay-button w-8 h-8 rounded-full">
-            <Plus className="w-4 h-4" />
+          {/* Add Dhikr Button */}
+          <div
+            onClick={onOpenAddDhikr}
+            className="liquid-glass p-4 flex flex-col items-center text-center cursor-pointer hover:bg-card/45 hover:scale-[1.01] active:scale-95 transition-all"
+          >
+            <div className="font-bold text-foreground">Add Your Dhikr</div>
+            <div className="text-xs text-muted-foreground mb-3">Create custom dhikr counter</div>
+            <div className="w-9 h-9 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent shadow-sm hover:bg-accent/30 transition-all">
+              <Plus className="w-4 h-4" />
+            </div>
           </div>
         </div>
+
+        {/* Must Recite Dua Section */}
+        <div>
+          <h2 className="text-center font-bold text-foreground text-xl mb-4 uppercase tracking-widest header-font text-accent">Must Recite Dua</h2>
+
+          {/* Dua List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 space-y-3 md:space-y-0 mb-4">
+            {duas.map((dua) => (
+              <div key={dua.id} className="liquid-glass w-full p-4 flex flex-col gap-2 relative group hover:scale-[1.01] transition-all">
+                {dua.arabic && (
+                  <div className="text-right font-arabic text-lg md:text-xl text-foreground leading-loose py-2">
+                    {dua.arabic}
+                  </div>
+                )}
+                <div className="text-xs md:text-sm text-muted-foreground italic pl-6">{dua.desc}</div>
+                <button
+                  onClick={() => onDeleteDua(dua.id)}
+                  className="absolute top-2 left-2 text-destructive/60 hover:text-destructive p-1.5 rounded-md hover:bg-destructive/5 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Add Dua Button */}
+          <div
+            onClick={onOpenAddDua}
+            className="liquid-glass p-4 flex flex-col items-center text-center cursor-pointer hover:bg-card/45 hover:scale-[1.01] active:scale-95 transition-all"
+          >
+            <div className="font-bold text-foreground">Add Your Dua</div>
+            <div className="text-xs text-muted-foreground mb-3">Save favorite supplications</div>
+            <div className="w-9 h-9 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent shadow-sm hover:bg-accent/30 transition-all">
+              <Plus className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

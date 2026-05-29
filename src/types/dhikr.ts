@@ -79,7 +79,7 @@ export const PRAYER_METHODS = [
   { id: 12, name: 'France' },
   { id: 13, name: 'Turkey' },
   { id: 14, name: 'Russia' },
-  { id: 15, name: 'Dubai (UAE)' },
+  { id: 16, name: 'Dubai (UAE)' },
 ] as const;
 
 export const AZAN_SOUNDS = [

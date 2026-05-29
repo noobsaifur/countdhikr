@@ -6,6 +6,9 @@ import { PrayerTimes } from './usePrayerTimes';
 interface NotificationSettings {
   dhikrReminderEnabled: boolean;
   salatReminderEnabled: boolean;
+  azanEnabled: boolean;
+  azanSound: boolean;
+  azanVibrate: boolean;
   prayerTimes: PrayerTimes | null;
   hasDoneDhikrToday: boolean;
   vibrate: boolean;
@@ -22,7 +25,6 @@ const requestExactAlarmPermission = async (): Promise<void> => {
   if (!isNative()) return;
 
   try {
-    // Check if we have permission to schedule exact alarms
     const permStatus: PermissionStatus = await LocalNotifications.checkPermissions();
     console.log('Notification permission status:', permStatus);
 
@@ -39,7 +41,7 @@ export function useNotifications(settings: NotificationSettings) {
   const scheduledNotificationsRef = useRef<Set<string>>(new Set());
   const lastScheduledDateRef = useRef<string>('');
 
-  // Request permission for notifications
+  // Request permission for notifications with enhanced guidance check
   const requestPermission = useCallback(async () => {
     if (!isNative()) {
       // Web fallback
@@ -50,10 +52,42 @@ export function useNotifications(settings: NotificationSettings) {
     }
 
     try {
-      const result: PermissionStatus = await LocalNotifications.requestPermissions();
-      console.log('Notification permission:', result.display);
+      const status: PermissionStatus = await LocalNotifications.checkPermissions();
+      console.log('Current notification permission status:', status.display);
+      
+      if (status.display === 'denied') {
+        console.warn('Notification permission is denied by the user. Guidance prompt triggered.');
+        return 'denied';
+      }
+      
+      if (status.display !== 'granted') {
+        const result: PermissionStatus = await LocalNotifications.requestPermissions();
+        console.log('Notification permission request result:', result.display);
+        return result.display;
+      }
+      return 'granted';
     } catch (error) {
       console.error('Failed to request notification permission:', error);
+      return 'prompt';
+    }
+  }, []);
+
+  // Create high-importance notification channel for Android
+  const createNotificationChannel = useCallback(async () => {
+    if (!isNative()) return;
+
+    try {
+      await LocalNotifications.createChannel({
+        id: 'prayer-times-channel',
+        name: 'Prayer Reminders',
+        description: 'Notifications for prayer times and daily dhikr reminders',
+        importance: 5, // High importance (plays sound & displays banner)
+        vibration: true,
+        visibility: 1, // Public visibility
+      });
+      console.log('High-importance notification channel registered');
+    } catch (error) {
+      console.error('Failed to register notification channel:', error);
     }
   }, []);
 
@@ -85,8 +119,8 @@ export function useNotifications(settings: NotificationSettings) {
               title: "Dhikr Reminder 🕌",
               body: "You haven't done dhikr today. Take a moment to remember Allah.",
               schedule: { at: reminderTime },
-              sound: 'beep.wav',
-              smallIcon: 'ic_stat_icon',
+              channelId: 'prayer-times-channel', // Assign to custom high-importance channel!
+              smallIcon: 'ic_launcher',
               actionTypeId: 'OPEN_APP',
             }
           ]
@@ -129,6 +163,90 @@ export function useNotifications(settings: NotificationSettings) {
       console.error('Failed to cancel dhikr reminder:', error);
     }
   }, []);
+
+  // Cancel salat reminders
+  const cancelSalatReminders = useCallback(async () => {
+    if (!isNative()) return;
+
+    try {
+      const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+      const notificationsToCancel = prayers.map((_, index) => ({ id: 2001 + index }));
+      await LocalNotifications.cancel({ notifications: notificationsToCancel });
+      console.log('Salat reminders cancelled');
+    } catch (error) {
+      console.error('Failed to cancel salat reminders:', error);
+    }
+  }, []);
+
+  // Cancel azan notifications
+  const cancelAzanNotifications = useCallback(async () => {
+    if (!isNative()) return;
+
+    try {
+      const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+      const notificationsToCancel = prayers.map((_, index) => ({ id: 3001 + index }));
+      await LocalNotifications.cancel({ notifications: notificationsToCancel });
+      console.log('Azan notifications cancelled');
+    } catch (error) {
+      console.error('Failed to cancel azan notifications:', error);
+    }
+  }, []);
+
+  // Schedule exact azan notifications
+  const scheduleAzanNotifications = useCallback(async () => {
+    if (!settings.azanEnabled || !settings.prayerTimes) return;
+
+    const now = new Date();
+    const today = now.toDateString();
+
+    const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
+    const notifications: ScheduleOptions['notifications'] = [];
+
+    prayers.forEach((prayer, index) => {
+      const key = `azan-${prayer}-${today}`;
+      if (scheduledNotificationsRef.current.has(key)) return;
+
+      const prayerTime = settings.prayerTimes![prayer];
+      const [h, m] = prayerTime.split(':').map(Number);
+
+      const reminderTime = new Date(now);
+      reminderTime.setHours(h, m, 0, 0);
+
+      // Skip if time has passed
+      if (reminderTime <= now) return;
+
+      scheduledNotificationsRef.current.add(key);
+
+      const prayerNames: Record<string, string> = {
+        Fajr: 'Fajr (Dawn)',
+        Dhuhr: 'Dhuhr (Noon)',
+        Asr: 'Asr (Afternoon)',
+        Maghrib: 'Maghrib (Sunset)',
+        Isha: 'Isha (Night)'
+      };
+
+      notifications.push({
+        id: 3001 + index,
+        title: `${prayerNames[prayer]} Adhan 🕌`,
+        body: `It's time for ${prayerNames[prayer]} prayer. Come to prayer, come to success.`,
+        schedule: { at: reminderTime },
+        channelId: 'prayer-times-channel', // High-importance channel
+        smallIcon: 'ic_launcher',
+        actionTypeId: 'OPEN_APP',
+      });
+    });
+
+    if (notifications.length === 0) return;
+
+    if (isNative()) {
+      try {
+        await LocalNotifications.schedule({ notifications });
+        console.log('Exact-time Azan notifications scheduled:', notifications.length);
+      } catch (error) {
+        console.error('Failed to schedule azan notifications:', error);
+      }
+    }
+  }, [settings.azanEnabled, settings.prayerTimes]);
 
   // Schedule salat reminders (10 min after azan, 2 min for Maghrib)
   const scheduleSalatReminders = useCallback(async () => {
@@ -179,8 +297,8 @@ export function useNotifications(settings: NotificationSettings) {
           title: `${prayerNames[prayer]} Prayer Time 🕌`,
           body: `It's time for ${prayerNames[prayer]} prayer. May Allah accept your prayers.`,
           schedule: { at: reminderTime },
-          sound: 'beep.wav',
-          smallIcon: 'ic_stat_icon',
+          channelId: 'prayer-times-channel', // Assign to custom high-importance channel!
+          smallIcon: 'ic_launcher',
           actionTypeId: 'OPEN_APP',
         });
       }
@@ -224,8 +342,12 @@ export function useNotifications(settings: NotificationSettings) {
     const initNotifications = async () => {
       await requestPermission();
       await requestExactAlarmPermission();
+      await createNotificationChannel();
 
       // Reschedule all notifications on app startup for reliability
+      if (settings.azanEnabled && settings.prayerTimes) {
+        scheduleAzanNotifications();
+      }
       if (settings.salatReminderEnabled && settings.prayerTimes) {
         scheduleSalatReminders();
       }
@@ -235,13 +357,13 @@ export function useNotifications(settings: NotificationSettings) {
     };
 
     initNotifications();
-  }, [requestPermission, scheduleDhikrReminder, scheduleSalatReminders, settings.dhikrReminderEnabled, settings.hasDoneDhikrToday, settings.prayerTimes, settings.salatReminderEnabled]);
+  }, [requestPermission, createNotificationChannel, scheduleDhikrReminder, scheduleSalatReminders, scheduleAzanNotifications, settings.dhikrReminderEnabled, settings.hasDoneDhikrToday, settings.prayerTimes, settings.salatReminderEnabled, settings.azanEnabled]);
 
   // Schedule dhikr reminder
   useEffect(() => {
     if (settings.dhikrReminderEnabled && !settings.hasDoneDhikrToday) {
       scheduleDhikrReminder();
-    } else if (settings.hasDoneDhikrToday) {
+    } else if (!settings.dhikrReminderEnabled || settings.hasDoneDhikrToday) {
       cancelDhikrReminder();
     }
   }, [settings.dhikrReminderEnabled, settings.hasDoneDhikrToday, scheduleDhikrReminder, cancelDhikrReminder]);
@@ -250,14 +372,28 @@ export function useNotifications(settings: NotificationSettings) {
   useEffect(() => {
     if (settings.salatReminderEnabled && settings.prayerTimes) {
       scheduleSalatReminders();
+    } else if (!settings.salatReminderEnabled) {
+      cancelSalatReminders();
     }
-  }, [settings.salatReminderEnabled, settings.prayerTimes, scheduleSalatReminders]);
+  }, [settings.salatReminderEnabled, settings.prayerTimes, scheduleSalatReminders, cancelSalatReminders]);
+
+  // Schedule azan notifications
+  useEffect(() => {
+    if (settings.azanEnabled && settings.prayerTimes) {
+      scheduleAzanNotifications();
+    } else if (!settings.azanEnabled) {
+      cancelAzanNotifications();
+    }
+  }, [settings.azanEnabled, settings.prayerTimes, scheduleAzanNotifications, cancelAzanNotifications]);
 
   return {
     requestPermission,
     scheduleDhikrReminder,
     scheduleSalatReminders,
+    scheduleAzanNotifications,
     cancelDhikrReminder,
+    cancelSalatReminders,
+    cancelAzanNotifications,
     isNative: isNative(),
   };
 }

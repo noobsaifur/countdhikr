@@ -71,6 +71,7 @@ export function useQiblaCompass() {
   const watchId = useRef<number | null>(null);
   const orientationHandler = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
   const isAbsoluteRef = useRef<boolean>(false);
+  const prevHeadingRef = useRef<number | null>(null);
 
   // Check and request device orientation permission (iOS 13+)
   const requestOrientationPermission = useCallback(async (): Promise<boolean> => {
@@ -176,16 +177,54 @@ export function useQiblaCompass() {
     // Check for iOS specific webkitCompassHeading
     if ((event as any).webkitCompassHeading !== undefined) {
       heading = (event as any).webkitCompassHeading;
+    } else if (event.alpha !== null && event.beta !== null && event.gamma !== null) {
+      // Android / Chrome: Use tilt-compensated heading for rock-solid stability!
+      const alpha = event.alpha;
+      const beta = event.beta;
+      const gamma = event.gamma;
+
+      // Convert degrees to radians
+      const alphaRad = (alpha * Math.PI) / 180;
+      const betaRad = (beta * Math.PI) / 180;
+      const gammaRad = (gamma * Math.PI) / 180;
+
+      // Calculate components of magnetic vector projected onto horizontal plane
+      const cA = Math.cos(alphaRad);
+      const sA = Math.sin(alphaRad);
+      const cB = Math.cos(betaRad);
+      const sB = Math.sin(betaRad);
+      const cG = Math.cos(gammaRad);
+      const sG = Math.sin(gammaRad);
+
+      const rX = -sG * sA - cG * sB * cA;
+      const rY = -sG * cA + cG * sB * sA;
+
+      // Calculate absolute heading in degrees [0, 360)
+      let absoluteHeading = Math.atan2(rX, rY) * (180 / Math.PI);
+      if (absoluteHeading < 0) {
+        absoluteHeading += 360;
+      }
+      heading = absoluteHeading;
     } else if (event.alpha !== null) {
-      // Android / Chrome: alpha is counter-clockwise rotation around Z-axis.
-      // Compass heading is clockwise rotation from North.
+      // Fallback to simple Z-axis rotation if beta/gamma not available
       heading = (360 - event.alpha) % 360;
     }
 
     if (heading !== null) {
+      let finalHeading = heading;
+      if (prevHeadingRef.current !== null) {
+        // Handle 360-degree wrap-around for butter-smooth low-pass filter
+        let diff = heading - prevHeadingRef.current;
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        // 0.25 filter coefficient is perfect for responsiveness + no jitter
+        finalHeading = (prevHeadingRef.current + 0.25 * diff + 360) % 360;
+      }
+      prevHeadingRef.current = finalHeading;
+
       setState(prev => ({
         ...prev,
-        compassHeading: heading,
+        compassHeading: finalHeading,
         isGyroscopeAvailable: true,
         accuracy: prev.isLocationAvailable ? 'high' : 'medium',
       }));

@@ -76,6 +76,9 @@ const Index = () => {
   useNotifications({
     dhikrReminderEnabled: state.settings.dhikrReminderEnabled,
     salatReminderEnabled: state.settings.salatReminderEnabled,
+    azanEnabled: state.settings.azanEnabled,
+    azanSound: state.settings.azanSound,
+    azanVibrate: state.settings.azanVibrate,
     prayerTimes,
     hasDoneDhikrToday,
     vibrate: state.settings.vibrate,
@@ -217,7 +220,12 @@ const Index = () => {
     <div className="h-screen w-full overflow-hidden flex flex-col items-center justify-center">
       <Header />
 
-      <div className="w-full max-w-md landscape:max-w-2xl h-full pt-20 landscape:pt-12 pb-24 landscape:pb-18 relative flex flex-col transition-all duration-300">
+      <div 
+        className="w-full max-w-md landscape:max-w-2xl h-full pb-24 landscape:pb-18 relative flex flex-col transition-all duration-300"
+        style={{
+          paddingTop: 'calc(env(safe-area-inset-top, 24px) + 5.5rem)'
+        }}
+      >
         {activeTab === 'home' && (
           <HomeScreen
             count={displayCount}

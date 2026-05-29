@@ -2,7 +2,7 @@ import { SelectedCountry } from '@/types/dhikr';
 
 export const COUNTRIES: SelectedCountry[] = [
   // UAE Emirates
-  { name: 'Dubai, UAE', code: 'AE-DU', lat: 25.2048, lng: 55.2708, method: 15 },
+  { name: 'Dubai, UAE', code: 'AE-DU', lat: 25.2048, lng: 55.2708, method: 16 },
   { name: 'Abu Dhabi, UAE', code: 'AE-AZ', lat: 24.4539, lng: 54.3773, method: 8 },
   { name: 'Sharjah, UAE', code: 'AE-SH', lat: 25.3463, lng: 55.4209, method: 8 },
   { name: 'Ajman, UAE', code: 'AE-AJ', lat: 25.4052, lng: 55.5136, method: 8 },

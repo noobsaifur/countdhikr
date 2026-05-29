@@ -48,6 +48,12 @@
     --clay-shadow-dark: 150, 165, 155;
     
     --radius: 1.75rem;
+
+    /* Liquid Glass specific */
+    --liquid-glass-bg: rgba(255, 255, 255, 0.38);
+    --liquid-glass-border: rgba(255, 255, 255, 0.55);
+    --liquid-glass-shimmer: rgba(212, 175, 55, 0.15);
+    --liquid-glass-inner-glow: rgba(255, 255, 255, 0.7);
   }
 
   .dark {
@@ -85,6 +91,12 @@
     
     --clay-shadow-light: 50, 60, 75;
     --clay-shadow-dark: 5, 8, 12;
+
+    /* Liquid Glass dark */
+    --liquid-glass-bg: rgba(10, 18, 30, 0.45);
+    --liquid-glass-border: rgba(255, 255, 255, 0.08);
+    --liquid-glass-shimmer: rgba(212, 175, 55, 0.1);
+    --liquid-glass-inner-glow: rgba(255, 255, 255, 0.04);
   }
 }
 
@@ -100,7 +112,7 @@
 
   body {
     @apply text-foreground antialiased;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Gilroy', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none;
     min-height: 100vh;
     min-height: 100dvh;
@@ -124,32 +136,143 @@
       radial-gradient(ellipse 60% 55% at 35% 85%, hsl(var(--mesh-3) / 0.65) 0%, transparent 50%),
       radial-gradient(ellipse 45% 60% at 90% 80%, hsl(var(--mesh-4) / 0.55) 0%, transparent 50%),
       hsl(var(--background));
-    animation: mesh-float 20s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
-  }
-  
-  @keyframes mesh-float {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    33% { transform: translate(1.5%, 0.8%) rotate(1deg); }
-    66% { transform: translate(-0.8%, 1.2%) rotate(-1deg); }
   }
 }
 
 @layer components {
   /* Fonts */
+  .sans-font {
+    font-family: 'Plus Jakarta Sans', 'Gilroy', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .slab-font {
+    font-family: 'Arvo', 'ITC Lubalin Graph', Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+
   .arabic-font {
     font-family: 'Amiri', serif;
   }
   
   .header-font {
-    font-family: 'Cinzel Decorative', 'Cinzel', serif;
-    letter-spacing: 0.15em;
+    font-family: 'Arvo', 'ITC Lubalin Graph', Georgia, serif;
+    letter-spacing: 0.05em;
   }
 
-  /* Premium Glassmorphism Card (White/Silver themed glass) */
+  /* ==========================================
+     LIQUID GLASS DESIGN SYSTEM
+     ========================================== */
+
+  /* Liquid Glass Card — Primary frosted container */
+  .liquid-glass {
+    background: var(--liquid-glass-bg);
+    backdrop-filter: blur(12px) saturate(1.15);
+    -webkit-backdrop-filter: blur(12px) saturate(1.15);
+    border: 1px solid var(--liquid-glass-border);
+    border-radius: 1.5rem;
+    box-shadow: 
+      0 8px 32px -8px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 0 var(--liquid-glass-inner-glow),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.02);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .dark .liquid-glass {
+    box-shadow: 
+      0 12px 40px -10px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* Liquid Glass Gold — Accented variant */
+  .liquid-glass-gold {
+    background: var(--liquid-glass-bg);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 1.5rem;
+    box-shadow: 
+      0 8px 32px -8px rgba(212, 175, 55, 0.08),
+      0 4px 16px -4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 0 var(--liquid-glass-inner-glow);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(212, 175, 55, 0.06) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(212, 175, 55, 0.04) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .dark .liquid-glass-gold {
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    box-shadow: 
+      0 16px 48px -12px rgba(0, 0, 0, 0.55),
+      0 4px 20px -4px rgba(212, 175, 55, 0.06),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* Shimmer animation for special cards */
+  @keyframes shimmer-slide {
+    0% { transform: translateX(-100%) rotate(15deg); }
+    100% { transform: translateX(200%) rotate(15deg); }
+  }
+
+  .liquid-glass-shimmer::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+    animation: shimmer-slide 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ==========================================
+     LEGACY GLASS CARDS (kept for compatibility)
+     ========================================== */
+
   .glass-card {
     background: rgba(255, 255, 255, 0.42);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
     border: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow: 
       0 10px 30px -10px rgba(10, 30, 20, 0.06),
@@ -166,11 +289,10 @@
       inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
   }
 
-  /* Premium Gold-accented Glassmorphism Card */
   .glass-card-gold {
     background: rgba(255, 255, 255, 0.52);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
     border: 1px solid rgba(212, 175, 55, 0.3);
     box-shadow: 
       0 12px 35px -10px rgba(212, 175, 55, 0.06),
@@ -189,16 +311,19 @@
       inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   }
 
-  /* Claymorphic compatibility fallbacks */
   .clay-card {
     @apply glass-card;
   }
 
-  /* Premium Glass Buttons */
+  /* ==========================================
+     BUTTONS
+     ========================================== */
+
+  /* Premium Glass Buttons (round) */
   .clay-button {
     background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     box-shadow: 
@@ -226,73 +351,165 @@
     background: rgba(255, 255, 255, 0.1);
   }
 
-  /* Rectangular Glass Buttons */
+  /* Rectangular Glass Buttons / Cards */
   .clay-button-rect {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 1rem;
+    background: var(--liquid-glass-bg);
+    backdrop-filter: blur(10px) saturate(1.15);
+    -webkit-backdrop-filter: blur(10px) saturate(1.15);
+    border: 1px solid var(--liquid-glass-border);
+    border-radius: 1.25rem;
     box-shadow: 
-      0 4px 12px rgba(10, 30, 20, 0.04),
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+      0 4px 16px -4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 0 var(--liquid-glass-inner-glow);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    color: hsl(var(--muted-foreground));
-    display: inline-flex;
+    color: hsl(var(--foreground));
+    display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .dark .clay-button-rect {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 
+      0 4px 16px -4px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
   }
 
   .clay-button-rect:active {
-    transform: scale(0.96);
-    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0.97);
   }
 
-  .dark .clay-button-rect:active {
-    background: rgba(255, 255, 255, 0.1);
-  }
+  /* ==========================================
+     COUNTER BUTTON & DISPLAY
+     ========================================== */
 
-  /* Toggle Switch */
-  .toggle-switch {
-    @apply relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer;
-    background-color: hsl(var(--muted));
-  }
-
-  .toggle-switch[data-checked="true"] {
-    background-color: hsl(var(--primary));
-  }
-
-  .toggle-switch-thumb {
-    @apply absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform shadow-md;
-  }
-
-  .toggle-switch[data-checked="true"] .toggle-switch-thumb {
-    transform: translateX(20px);
+  /* Large Count Display */
+  .count-display {
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -0.04em;
   }
 
   /* Haptic & Spring Tap Feedback for Counter */
   .count-button {
     transition: transform 0.25s cubic-bezier(0.34, 1.65, 0.64, 1), box-shadow 0.25s ease, background 0.25s ease;
+    will-change: transform;
   }
 
   .count-button:active {
-    transform: scale(0.85);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transform: scale(0.82) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   }
+
+  /* Glow ring animation for the + button */
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 20px rgba(16, 185, 129, 0.3),
+        0 8px 32px -4px rgba(16, 185, 129, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 35px rgba(16, 185, 129, 0.45),
+        0 8px 40px -4px rgba(16, 185, 129, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .count-button-glow {
+    animation: glow-pulse 2.5s ease-in-out infinite;
+  }
+
+  /* ==========================================
+     TOGGLE SWITCH
+     ========================================== */
+
+  .toggle-switch {
+    position: relative;
+    display: inline-flex;
+    height: 32px;
+    width: 52px;
+    align-items: center;
+    border-radius: 9999px;
+    transition: background-color 0.25s cubic-bezier(0.2, 0, 0, 1), border-color 0.25s cubic-bezier(0.2, 0, 0, 1);
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 0;
+  }
+
+  .dark .toggle-switch {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .toggle-switch[data-checked="true"] {
+    background-color: #10b981; /* emerald-500 primary theme green */
+    border-color: transparent;
+  }
+
+  .toggle-switch-thumb {
+    position: absolute;
+    left: 4px;
+    height: 20px;
+    width: 20px;
+    border-radius: 9999px;
+    background-color: #94a3b8; /* slate-400 */
+    color: #475569; /* slate-600 */
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), width 0.25s cubic-bezier(0.2, 0, 0, 1), height 0.25s cubic-bezier(0.2, 0, 0, 1), background-color 0.25s cubic-bezier(0.2, 0, 0, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-switch[data-checked="true"] .toggle-switch-thumb {
+    transform: translateX(24px);
+    height: 24px;
+    width: 24px;
+    left: 2px;
+    background-color: #ffffff; /* pure white contrast */
+    color: #10b981; /* emerald-500 primary theme green */
+  }
+
+  .toggle-switch:active .toggle-switch-thumb {
+    width: 28px; /* dynamic stretch elastic physics */
+  }
+
+  /* ==========================================
+     M3 BOTTOM NAVIGATION
+     ========================================== */
+
+  .m3-nav-indicator {
+    background: hsl(var(--primary) / 0.12);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .dark .m3-nav-indicator {
+    background: hsl(var(--primary) / 0.2);
+  }
+
+  /* ==========================================
+     SCROLLBAR & UTILITY
+     ========================================== */
   
-  /* Scrollbar hiders */
   .hide-scroll::-webkit-scrollbar {
     display: none;
   }
   .hide-scroll {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Safe area inset utilities */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
 
@@ -341,5 +558,22 @@
     border-radius: 50%;
     background: hsl(var(--primary) / 0.16);
     animation: ios-expand 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Responsive count display */
+  .count-size-responsive {
+    font-size: clamp(4.5rem, 17vw, 9rem);
+  }
+
+  @media (orientation: landscape) {
+    .count-size-responsive {
+      font-size: clamp(2.5rem, 10vh, 5rem);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .count-size-responsive {
+      font-size: clamp(5rem, 10vw, 8rem);
+    }
   }
 }

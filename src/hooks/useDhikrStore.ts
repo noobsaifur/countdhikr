@@ -351,10 +351,17 @@ export function useDhikrStore() {
   }, []);
 
   const updateSettings = useCallback((settings: Partial<AppSettings>) => {
-    setState(prev => ({
-      ...prev,
-      settings: { ...prev.settings, ...settings },
-    }));
+    setState(prev => {
+      const newSettings = { ...prev.settings, ...settings };
+      // If auto location is enabled, clear selected country to restore default auto-location behavior
+      if (settings.useAutoLocation === true) {
+        newSettings.selectedCountry = null;
+      }
+      return {
+        ...prev,
+        settings: newSettings,
+      };
+    });
   }, []);
 
   const factoryReset = useCallback(() => {
